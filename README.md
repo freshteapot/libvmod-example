@@ -3,6 +3,38 @@ This is more a proof of concept, run in production at your own risk.
 
 This proves, that we can compile go code with cgo bindings to create vmods for varnish.
 
+# What does it do?
+Via vcl.
+
+```vcl
+vcl 4.0;
+
+backend default {
+.host = "127.0.0.1";
+.port = "81";
+}
+
+
+sub vcl_recv {
+    return (hash);
+}
+
+import example;
+sub vcl_deliver {
+        set resp.http.hello = example.hello("World");
+}
+```
+We call the method "hello", it will set a header "hello"
+```
+hello: Hey you, World
+```
+
+And via "varnishlog", you will see it writes a "VCL_Log" line
+```
+VCL_Log        Hi Chris
+```
+
+
 # Install
 You need the following installed:
 - varnish or varnish-plus.
@@ -47,3 +79,4 @@ undefined reference to `WS_Reserve'
 
 # Reference
 - Based my code off work done by [hnakamur](https://github.com/hnakamur/) [here](https://github.com/hnakamur/docker-varnish-vmods-development/tree/try_to_create_vmod_in_go/varnish/libvmod_go_example)
+- Big thanks to [https://github.com/phenomenes/](https://github.com/phenomenes/vago) for her work on [vago](https://github.com/phenomenes/vago) as it gave me plenty of pointers.
